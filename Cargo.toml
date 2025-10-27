@@ -1,0 +1,17 @@
+[workspace]
+resolver = "3"
+members = [
+  "core",
+  "duskmourns-claim",
+]
+
+[workspace.package]
+description = "Future MTG rules engine (WIP)"
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+mtg-lib-core = { path = "core" }
+rand = "0.9"
+
+[workspace.lints.clippy]

@@ -1,0 +1,11 @@
+[package]
+name = "mtg-lib-core"
+description = "Core definitions for a MTG rules engine"
+version.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rand.workspace = true
