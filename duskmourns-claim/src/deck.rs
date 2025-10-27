@@ -22,12 +22,16 @@
 
 use mtg_lib_core::{
     card::{
+        Card, CardFace,
         abilities::{
             Ability, AbilityCost, EndStepAbility, EntersAbility, ManaAbility, ManaProduction,
-        }, color::Color, mana_cost::{ManaCost, Pip, Unit}, types::{
+        },
+        color::Color,
+        mana_cost::{ManaCost, Pip, Unit},
+        types::{
             CreatureProperties, CreatureSubtypes, EnchantmentProperties, EnchantmentSubtypes,
             LandProperties, LandSubtypes, Power, Toughness, Type,
-        }, Card, CardFace
+        },
     },
     game_play::battlefield::{Battlefield, Event},
 };
@@ -569,8 +573,10 @@ fn cease_ability(battlefield: &mut Battlefield) {
     let player = battlefield.players.first_mut().unwrap();
 
     player.life_total += 2;
-    if let Ok(_) = player.draw_a_card() {
-        battlefield.log.push(Event::Draw(player.zones.hand.last().expect("Just drew card").clone()));
+    if player.draw_a_card().is_ok() {
+        battlefield.log.push(Event::Draw(
+            player.zones.hand.last().expect("Just drew card").clone(),
+        ));
     }
 }
 
@@ -612,8 +618,10 @@ fn shattered_yard_ability(battlefield: &mut Battlefield) {
 // TODO: notion of "you"
 fn steaming_sauna_ability(battlefield: &mut Battlefield) {
     let player = battlefield.players.first_mut().unwrap();
-    if let Ok(_) = player.draw_a_card() {
-        battlefield.log.push(Event::Draw(player.zones.hand.last().expect("Just drew card").clone()));
+    if player.draw_a_card().is_ok() {
+        battlefield.log.push(Event::Draw(
+            player.zones.hand.last().expect("Just drew card").clone(),
+        ));
     }
 }
 

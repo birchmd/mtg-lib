@@ -3,8 +3,11 @@ mod parallelism;
 mod simulation;
 
 fn main() {
-    let distribution = parallelism::run(20, 100_000);
-    for (n_turns, amount) in distribution.into_iter().enumerate() {
+    let (wins, losses) = parallelism::run(20, 100_000);
+    for (n_turns, amount) in wins.into_iter().enumerate() {
+        println!("{n_turns},{amount}");
+    }
+    for (n_turns, amount) in losses.into_iter().enumerate() {
         println!("{n_turns},{amount}");
     }
 }

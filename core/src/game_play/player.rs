@@ -38,11 +38,7 @@ impl PlayerState {
 
     // Returns None if the draw failed
     pub fn draw_a_card(&mut self) -> Result<(), Decked> {
-        let card = self
-            .zones
-            .library
-            .pop_front()
-            .ok_or(Decked)?;
+        let card = self.zones.library.pop_front().ok_or(Decked)?;
         self.zones.hand.push(card);
         Ok(())
     }

@@ -1,8 +1,12 @@
 use mtg_lib_core::{
     card::{
-        abilities::{Ability, EndStepAbility}, Card
+        Card,
+        abilities::{Ability, EndStepAbility},
     },
-    game_play::{battlefield::{Battlefield, Event}, player::PlayerState},
+    game_play::{
+        battlefield::{Battlefield, Event},
+        player::PlayerState,
+    },
 };
 
 const CLAIM_NAME: &str = "Duskmourn's Claim";
@@ -13,6 +17,7 @@ mod play_land;
 pub enum GameFlow {
     Continue,
     Victory,
+    Loss,
 }
 
 pub fn initialize() -> Battlefield {
@@ -57,15 +62,21 @@ pub fn opening_hand(battlefield: &mut Battlefield) {
 }
 
 // Returns the number of turns to victory
-pub fn simulation_run() -> usize {
+pub fn simulation_run() -> isize {
     let mut battlefield = initialize();
     opening_hand(&mut battlefield);
 
     let mut turn = 0;
     loop {
         turn += 1;
-        if let GameFlow::Victory = turn_cycle(&mut battlefield) {
-            return turn;
+        match turn_cycle(&mut battlefield) {
+            GameFlow::Continue => (),
+            GameFlow::Victory => {
+                return turn;
+            }
+            GameFlow::Loss => {
+                return -turn;
+            }
         }
     }
 }
@@ -85,10 +96,16 @@ pub fn turn_cycle(battlefield: &mut Battlefield) -> GameFlow {
 
     // Draw for turn
     if player.draw_a_card().is_err() {
-        // TODO: this is actually a loss by decking
-        return GameFlow::Victory;
+        return GameFlow::Loss;
     }
-    battlefield.log.push(Event::Draw(player.zones.hand.last().expect("A card was just drawn").clone()));
+    battlefield.log.push(Event::Draw(
+        player
+            .zones
+            .hand
+            .last()
+            .expect("A card was just drawn")
+            .clone(),
+    ));
 
     play_land::play_a_land(battlefield);
     cast_spell::cast_spells(battlefield);

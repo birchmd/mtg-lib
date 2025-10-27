@@ -2,9 +2,16 @@ use {
     super::CLAIM_NAME,
     mtg_lib_core::{
         card::{
-            abilities::{Ability, EntersAbility, ManaProduction}, mana_cost::Unit, types::{LandSubtypes, Type}, Card
+            Card,
+            abilities::{Ability, EntersAbility, ManaProduction},
+            mana_cost::Unit,
+            types::{LandSubtypes, Type},
         },
-        game_play::{battlefield::{Battlefield, Event}, player::PlayerState, OwnedCard},
+        game_play::{
+            OwnedCard,
+            battlefield::{Battlefield, Event},
+            player::PlayerState,
+        },
     },
 };
 
