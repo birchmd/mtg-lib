@@ -13,3 +13,13 @@ We are only simulating the Duskmourn's Claim and seeing how long it takes to acc
 This means ignoring things like attacking with creatures, which of course is something you would normally do in a game of Magic.
 You could try to justify this choice by saying "we assume the opponent hs blockers", but honestly it's just because I don't want to dump too much time into this.
 Maybe in the future I'll do a better job (as I make incremental improvements to `mtg-lib-core`).
+
+## Simulation results
+
+- About 61% of the time, the deck wins between turns 7 and 10 (inclusive).
+- The deck wins on turn five 1% of the time and amazingly on turn four 0.03% of the time.
+- The deck loses (by running out of cards in library) 0.1% of the time.
+- The full distribution: ![Simulation result for distribution of winning turn number](res/duskmourns_claim_distribution.png)
+- The average is winning on turn 11.38 (+/- 0.01).
+- If there is no strategy to scrying/surveiling then this increases to 11.86, or 11.74 if we replace the scry lands with untapped duel lands.
+- The mulligan heuristic of trying to have Duskmourn's Claim in the opening hand also makes the deck slower some how, raising the average to 11.57 (assuming we always keep at least 4 cards). I do not understand this result. This is why the current code effectively disables mulligans by always choosing to keep 7 cards.
