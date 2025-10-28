@@ -62,18 +62,37 @@ pub fn cast_spells(battlefield: &mut Battlefield) {
     // 5. Steaming Sauna (draws cards)
     // 6. Shattered Yard (incidental damage)
 
-    let spells = [
+    let combo_spells = [
         (Finder::Single(CLAIM_NAME), CLAIM_COST),
         (Finder::Single(APPRAISER_NAME), APPRAISER_COST),
         (Finder::Single(CARNOSAUR_NAME), CARNOSAUR_COST),
-        (Finder::Split(CEASE_NAME), CEASE_COST),
+    ];
+    let end_step_advantage = [
         (Finder::Split(SAUNA_NAME), SAUNA_COST),
         (Finder::Split(YARD_NAME), YARD_COST),
     ];
 
+    cast_loop(battlefield, &combo_spells);
+
+    while let Some(cease) = find_split_card(battlefield, CEASE_NAME) {
+        if auto_tapper(battlefield, CEASE_COST.into()) {
+            // In the case of `Cease`, since it draws a card, we should
+            // check again if we can cast any of our combo enablers.
+            battlefield.cast_spell(cease);
+            cast_loop(battlefield, &combo_spells);
+        } else {
+            break;
+        }
+    }
+
+    cast_loop(battlefield, &end_step_advantage);
+}
+
+// Try casting as many copies of each given spell, in order.
+fn cast_loop(battlefield: &mut Battlefield, spells: &[(Finder, &[Pip])]) {
     for (finder, cost) in spells {
         while let Some(card) = finder.find(battlefield) {
-            if auto_tapper(battlefield, cost.into()) {
+            if auto_tapper(battlefield, (*cost).into()) {
                 battlefield.cast_spell(card);
             } else {
                 break;
