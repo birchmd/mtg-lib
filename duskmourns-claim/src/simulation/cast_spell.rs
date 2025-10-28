@@ -1,5 +1,5 @@
 use {
-    super::CLAIM_NAME,
+    super::{APPRAISER_NAME, CLAIM_NAME},
     mtg_lib_core::{
         card::{
             Card,
@@ -14,7 +14,6 @@ use {
     std::cmp::Ordering,
 };
 
-const APPRAISER_NAME: &str = "Geological Appraiser";
 const CARNOSAUR_NAME: &str = "Trumpeting Carnosaur";
 const CEASE_NAME: &str = "Cease";
 const SAUNA_NAME: &str = "Steaming Sauna";

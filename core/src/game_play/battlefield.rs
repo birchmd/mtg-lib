@@ -135,6 +135,7 @@ pub struct InPlayObject {
 /// Events that can happen during a game (e.g. play a land, scry 1 top, etc.).
 #[derive(Debug, Clone)]
 pub enum Event {
+    Mulligan(PlayerId),
     StartTurn(PlayerId),
     EnteredPlay(InPlayObject),
     Tap(InPlayObject),

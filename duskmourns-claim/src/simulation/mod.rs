@@ -1,14 +1,19 @@
-use mtg_lib_core::{
-    card::{
-        Card,
-        abilities::{Ability, EndStepAbility},
+use {
+    mtg_lib_core::{
+        card::{
+            Card,
+            abilities::{Ability, EndStepAbility},
+        },
+        game_play::{
+            OwnedCard,
+            battlefield::{Battlefield, Event},
+            player::PlayerState,
+        },
     },
-    game_play::{
-        battlefield::{Battlefield, Event},
-        player::PlayerState,
-    },
+    rand::seq::SliceRandom,
 };
 
+const APPRAISER_NAME: &str = "Geological Appraiser";
 const CLAIM_NAME: &str = "Duskmourn's Claim";
 
 mod cast_spell;
@@ -49,16 +54,85 @@ pub fn initialize() -> Battlefield {
 }
 
 pub fn opening_hand(battlefield: &mut Battlefield) {
-    // TODO: mulligan rules
-
     let player = battlefield.players.first_mut().unwrap();
-    let mut hand = Vec::with_capacity(7);
-    for _ in 0..7 {
-        let card = player.zones.library.pop_front().unwrap();
-        battlefield.log.push(Event::Draw(card.clone()));
-        hand.push(card);
+
+    let mut n_keep = 7;
+    loop {
+        let mut hand = Vec::with_capacity(7);
+        for _ in 0..7 {
+            let card = player.zones.library.pop_front().unwrap();
+            battlefield.log.push(Event::Draw(card.clone()));
+            hand.push(card);
+        }
+        player.zones.hand = hand;
+        if decide_to_keep(&player.zones.hand, n_keep) {
+            break;
+        }
+        battlefield.log.push(Event::Mulligan(player.id));
+        mulligan(player);
+        n_keep -= 1;
     }
-    player.zones.hand = hand;
+
+    // Bottom cards if we took mulligans
+    while n_keep < 7 {
+        let index = player
+            .zones
+            .hand
+            .iter()
+            .position(|o| {
+                // Bottom a big spell
+                o.card.mana_value() > 4
+            })
+            .or_else(|| {
+                // Or an extra land
+                player.zones.hand.iter().position(|o| o.card.is_land())
+            })
+            .unwrap_or_default();
+        let card = player.zones.hand.remove(index);
+        player.zones.library.push_back(card);
+        n_keep += 1;
+    }
+}
+
+fn mulligan(player: &mut PlayerState) {
+    let mut library = Vec::with_capacity(60);
+    for card in player.zones.hand.drain(..) {
+        library.push(card);
+    }
+    for card in player.zones.library.drain(..) {
+        library.push(card);
+    }
+    library.shuffle(&mut rand::rng());
+    player.zones.library = library.into();
+}
+
+fn decide_to_keep(hand: &[OwnedCard], n_keep: u8) -> bool {
+    // Keep every hand; the heuristics I have makes things worse.
+    // TODO: better mulligan heuristics.
+    if n_keep < 8 {
+        return true;
+    }
+
+    let has_claim = hand
+        .iter()
+        .any(|o| o.card.primary_name() == Some(CLAIM_NAME));
+    let has_appraiser = hand
+        .iter()
+        .any(|o| o.card.primary_name() == Some(CLAIM_NAME));
+    let n_lands = hand.iter().filter(|o| o.card.is_land()).count();
+
+    // Keep any hand with Claim and at least two lands
+    if n_lands >= 2 && has_claim {
+        return true;
+    }
+
+    // Keep any hand with Appraiser and at lest three lands
+    if n_lands >= 3 && has_appraiser {
+        return true;
+    }
+
+    // Mulligan otherwise
+    false
 }
 
 // Returns the number of turns to victory
